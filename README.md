@@ -9,3 +9,6 @@
 [Practica 1 Main.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/hola_interactivo/app/src/main/java/com/example/hola_mundo_interactivo/MainActivity.kt)
 
 
+### Codigo principal practica 2
+[Practica 1 Main.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/calculadora/app/src/main/java/com/example/hola_mundo_interactivo/MainActivity.kt)
+
