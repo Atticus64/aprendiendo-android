@@ -14,3 +14,6 @@
 
 ### Codigo principal practica 3
 [Practica 3 MainScreen.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/practica3_navegacion/app/src/main/java/com/example/navegacion/MainScreen.kt)
+
+### Codigo principal practica 4
+[Práctica 4 FormScreen.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/practica4_controlesAvanzados/app/src/main/java/com/example/practica4_controlesavanzados/FormScreen.kt)
