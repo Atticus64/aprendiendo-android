@@ -16,4 +16,15 @@
 [Practica 3 MainScreen.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/practica3_navegacion/app/src/main/java/com/example/navegacion/MainScreen.kt)
 
 ### Codigo principal practica 4
+* Navegacion por Intents
 [Práctica 4 FormScreen.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/practica4_controlesAvanzados/app/src/main/java/com/example/practica4_controlesavanzados/FormScreen.kt)
+
+### Codigo principal practica 5
+* SharePreferences
+[Práctica 5 FormScreen.kt](https://github.com/Atticus64/aprendiendo-android/blob/main/practica5_sharedpreferences/app/src/main/java/com/example/practica5_sharedpreferences/FormScreen.kt)
+
+### MiniProyecto Formulario de Alumno
+* Componentes básicos, manejo de props, Intents y sharePreferences
+[Miniproyecto](https://github.com/Atticus64/aprendiendo-android/blob/main/mini_proyecto_Alumno/app/src/main/java/com/example/mini_proyecto_alumno/FormRegister.kt)
+
+
