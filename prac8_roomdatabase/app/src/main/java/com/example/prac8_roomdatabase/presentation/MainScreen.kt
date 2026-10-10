@@ -85,9 +85,9 @@ fun MainScreen() {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(usuarios) { usuario ->
                 Card (modifier = Modifier.fillMaxWidth()) {
-                    Row() {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "ID: ${usuario.id} | Nombre: ${usuario.nombre}",
+                            text = "ID: ${usuario.id}\nNombre: ${usuario.nombre}",
                             modifier = Modifier.padding(16.dp)
                         )
                         Button(
@@ -96,7 +96,7 @@ fun MainScreen() {
                                     dao.eliminar(usuario)
                                 }
                             },
-                            Modifier.fillMaxWidth()
+                            Modifier.padding(15.dp)
                         ) {
                             Text("Eliminar usuario")
                         }
