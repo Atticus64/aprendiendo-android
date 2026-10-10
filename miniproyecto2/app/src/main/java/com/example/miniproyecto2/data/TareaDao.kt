@@ -17,6 +17,11 @@ interface TareaDao {
 
     @Query("SELECT * from tareas where not completed")
     fun obtenerPendientes(): Flow<List<Tarea>>
+
+
+    @Query("DELETE FROM tareas where completed")
+    fun eliminarCompletadas()
+
     @Insert
     fun insertar(tarea: Tarea)
 

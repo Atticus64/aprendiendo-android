@@ -16,13 +16,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.Dangerous
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Task
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,20 +49,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.miniproyecto2.data.Tarea
-import com.example.miniproyecto2.data.TareaDao
 import com.example.miniproyecto2.domain.AppDatabase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 enum class Filter {
     Completed, Pending, Normal
@@ -81,11 +75,9 @@ fun MainScreen() {
 
     var menuExpandido by remember { mutableStateOf(false) }
     var descripcionTarea by remember { mutableStateOf("") }
-    var prioridad by remember { mutableStateOf("") }
     var fechaTarea by remember { mutableStateOf("") }
 
     var filtro by remember { mutableStateOf(Filter.Normal) }
-    var openDialog by remember { mutableStateOf(false) }
 
     var opcionesPrioridad = arrayOf(
         "Urgente",
@@ -93,7 +85,10 @@ fun MainScreen() {
         "Personal",
         "Secundaria",
     )
-    val datePickerState = rememberDatePickerState()
+
+    var prioridad by remember { mutableStateOf(opcionesPrioridad.get(0)) }
+    val openAlertDialog = remember { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
     val db = remember { AppDatabase.getDatabase(context) }
     val dao = db.tareaDao()
@@ -142,27 +137,23 @@ fun MainScreen() {
                 actions = {
                     IconButton(onClick = {
                         filtro = Filter.Normal
-                        Toast.makeText(context, "Mostrar todas", Toast.LENGTH_SHORT).show()
-
                     }) {
                         Icon(imageVector = Icons.Default.Task, contentDescription = "Completadas")
                     }
                     IconButton(onClick = {
                         filtro = Filter.Completed
-                        Toast.makeText(context, "Mostrar Completadas", Toast.LENGTH_SHORT).show()
 
                     }) {
                         Icon(imageVector = Icons.Default.CheckBox, contentDescription = "Completadas")
                     }
                     IconButton(onClick = {
                         filtro = Filter.Pending
-                        Toast.makeText(context, "Mostrar Pendientes", Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(imageVector = Icons.Default.Work, contentDescription = "Pendientes")
                     }
                     IconButton(
                         onClick = {
-                            Toast.makeText(context, "Borrar completadas", Toast.LENGTH_SHORT).show()
+                            openAlertDialog.value = true
                         }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = "borrar completadas")
                     }
@@ -184,7 +175,6 @@ fun MainScreen() {
             //verticalArrangement = Arrangement.Center
         ) {
 
-
             Text("Crear Tarea: ", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -197,6 +187,24 @@ fun MainScreen() {
             )
 
 
+            if (openAlertDialog.value ){
+                    DialogAlert(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                dao.eliminarCompletadas()
+                            }
+                            Toast.makeText(context, "Se eliminaron las tareas completadas", Toast.LENGTH_SHORT).show()
+                            openAlertDialog.value = false
+                            println("Confirma la acción") // Add logic here to handle confirmation.
+                        },
+                        dialogTitle = "Solicitud de eliminación",
+                        dialogText = "¿Deseas eliminar las tareas completadas?",
+                        icon = Icons.Default.Info
+                    )
+            }
+
+
             PrioridadSelector(opcionesPrioridad, prioridad, {
                 prioridad = it
             })
@@ -207,6 +215,9 @@ fun MainScreen() {
                     coroutineScope.launch(Dispatchers.IO) {
                         dao.insertar(nuevaTarea)
                     }
+
+                    descripcionTarea = ""
+
                 },
                 Modifier.fillMaxWidth()
             ) {
@@ -216,23 +227,44 @@ fun MainScreen() {
             Text("Lista de Tareas <${TextoFiltro(filtro)}>", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(tareas) { tarea ->
+                items(tareas, key = { tarea -> tarea.id }) { tarea ->
                     Card (modifier = Modifier.fillMaxWidth()) {
-                        Row() {
+                        var isChecked by remember { mutableStateOf(tarea.completada) }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = "ID: ${tarea.id} | Nombre: ${tarea.descripcion} | Prioridad: ${tarea.prioridad}",
-                                modifier = Modifier.padding(16.dp)
+                                text = "${tarea.descripcion} \n Prioridad: ${tarea.prioridad}",
+                                modifier = Modifier.padding(12.dp)
                             )
-                            CompletadaCheck(
-                                onChecked = {
 
-                                    coroutineScope.launch(Dispatchers.IO) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = isChecked,
+                                    onCheckedChange = {
                                         tarea.completada = !tarea.completada
-                                        dao.actualizar(tarea)
+                                        isChecked = tarea.completada
+                                        coroutineScope.launch(Dispatchers.IO) {
+                                            dao.actualizar(tarea)
+                                        }
+                                    }
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        dao.eliminar(tarea)
                                     }
                                 },
-                                isChecked = tarea.completada
-                            )
+                                Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.Dangerous, "Eliminar tarea")
+                            }
+
 
                         }
                     }
